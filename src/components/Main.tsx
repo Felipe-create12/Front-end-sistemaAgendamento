@@ -78,7 +78,9 @@ export default function Main() {
         <p className="text-gray-400 mb-6">{currentDate}</p>
 
         {/* Barra de busca */}
-        <div className="relative w-full mb-10">
+        <div className="relative w-full mb-10"
+              onClick={() => router.push(`/buscar`)}
+            >
           <input
             type="text"
             placeholder="Encontre um estabelecimento"
@@ -152,7 +154,7 @@ export default function Main() {
                           "Distância não disponível"
                         )}{" "}
                         {" "}
-                        &nbsp; {shop.rating}
+                        &nbsp; 
                       </p>
                     </div>
                   </div>
