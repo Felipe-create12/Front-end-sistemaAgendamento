@@ -2,13 +2,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
-import { Sun, Moon, ChevronDown, LogOut } from "lucide-react"
+import { Sun, Moon, ChevronDown, LogOut, Bell } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export default function Header() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [language, setLanguage] = useState<"br" | "en">("br")
   const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const hiddenMenuRoutes = ["/login"]
@@ -18,9 +19,12 @@ export default function Header() {
     const token = localStorage.getItem("token")
     setIsLogged(!!token)
     setMounted(true)
+
+    // Recupera idioma salvo
+    const savedLang = localStorage.getItem("lang")
+    if (savedLang === "en" || savedLang === "br") setLanguage(savedLang)
   }, [pathname])
 
-  // Fecha o menu dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -31,32 +35,66 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const toggleLanguage = () => {
+    const newLang = language === "br" ? "en" : "br"
+    setLanguage(newLang)
+    localStorage.setItem("lang", newLang)
+  }
+
   if (!mounted) return null
 
   return (
     <header className="bg-[#0D0D0D] text-white shadow-md sticky top-0 z-50 transition-colors">
-      <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between px-4 py-3 md:px-6 max-w-7xl mx-auto">
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-blue-400">AgendeJá</span>
+          <span className="text-lg md:text-xl font-semibold text-blue-400">AgendeJá</span>
         </Link>
 
-        {/* NAV MENU */}
+        {/* MENU DESKTOP */}
         {!hiddenMenuRoutes.includes(pathname) && (
-          <nav className="flex items-center gap-8">
-            <Link href="/" className="hover:text-blue-400 transition">Início</Link>
-            <Link href="/buscar" className="hover:text-blue-400 transition">Buscar</Link>
-            <Link href="/agendamentos" className="hover:text-blue-400 transition">Meus Agendamentos</Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm">
+            <Link href="/" className={`hover:text-blue-400 transition ${pathname === "/" ? "text-blue-400" : ""}`}>
+              {language === "br" ? "Início" : "Home"}
+            </Link>
+            <Link href="/buscar" className={`hover:text-blue-400 transition ${pathname === "/buscar" ? "text-blue-400" : ""}`}>
+              {language === "br" ? "Buscar" : "Search"}
+            </Link>
+            <Link href="/agendamentos" className={`hover:text-blue-400 transition ${pathname === "/agendamentos" ? "text-blue-400" : ""}`}>
+              {language === "br" ? "Agendamentos" : "Bookings"}
+            </Link>
           </nav>
         )}
 
-        {/* AÇÕES (perfil, tema, login/sair) */}
-        <div className="flex items-center gap-3 relative" ref={dropdownRef}>
-          {/* ÍCONE DE USUÁRIO */}
+        {/* AÇÕES À DIREITA */}
+        <div className="flex items-center gap-2 sm:gap-3 relative" ref={dropdownRef}>
+          {/* ÍCONE DE NOTIFICAÇÕES */}
+          <button
+            className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition relative"
+            title={language === "br" ? "Notificações" : "Notifications"}
+          >
+            <Bell className="w-5 h-5 text-gray-300" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full"></span>
+          </button>
+
+          {/* BOTÃO DE IDIOMA */}
+          <button
+            onClick={toggleLanguage}
+            className="p-1 rounded-full bg-gray-800 hover:bg-gray-700 transition"
+            title={language === "br" ? "Mudar idioma para Inglês" : "Change language to Portuguese"}
+          >
+            <img
+              src={language === "br" ? "https://flagcdn.com/w20/br.png" : "https://flagcdn.com/w20/us.png"}
+              alt={language === "br" ? "BR" : "EN"}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+          </button>
+
+          {/* PERFIL */}
           {isLogged && (
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center bg-gray-800 px-3 py-2 rounded-full hover:bg-gray-700 transition gap-2"
+              className="flex items-center bg-gray-800 px-2 sm:px-3 py-1.5 rounded-full hover:bg-gray-700 transition gap-1 sm:gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="size-6 text-gray-300">
                 <path
@@ -69,7 +107,7 @@ export default function Header() {
             </button>
           )}
 
-          {/* DROPDOWN */}
+          {/* DROPDOWN PERFIL */}
           {dropdownOpen && (
             <div className="absolute right-0 top-12 w-36 bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-800 overflow-hidden animate-fadeIn">
               <button
@@ -80,7 +118,7 @@ export default function Header() {
                 className="w-full flex items-center justify-center gap-2 bg-[#E6005A] hover:bg-[#ff006e] text-white py-2 text-sm font-medium transition"
               >
                 <LogOut size={16} />
-                Sair
+                {language === "br" ? "Sair" : "Logout"}
               </button>
             </div>
           )}
@@ -88,8 +126,8 @@ export default function Header() {
           {/* BOTÃO DE TEMA */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-full bg-gray-800 dark:bg-gray-200 transition-colors"
-            title="Alterar tema"
+            className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+            title={language === "br" ? "Alterar tema" : "Toggle theme"}
           >
             {theme === "dark" ? (
               <Sun className="w-5 h-5 text-yellow-400" />
@@ -98,17 +136,32 @@ export default function Header() {
             )}
           </button>
 
-          {/* BOTÃO LOGIN */}
+          {/* LOGIN (caso deslogado) */}
           {!isLogged && (
             <Link
               href="/login"
-              className="bg-gray-800 px-3 py-2 rounded-full hover:bg-gray-700 transition"
+              className="hidden sm:block bg-gray-800 px-3 py-1.5 rounded-full hover:bg-gray-700 text-sm transition"
             >
-              Entrar
+              {language === "br" ? "Entrar" : "Login"}
             </Link>
           )}
         </div>
       </div>
+
+      {/* MENU MOBILE */}
+      {!hiddenMenuRoutes.includes(pathname) && (
+        <nav className="flex md:hidden justify-around bg-[#111] border-t border-gray-800 py-2 text-sm">
+          <Link href="/" className={`flex flex-col items-center ${pathname === "/" ? "text-blue-400" : "text-gray-400"}`}>
+            {language === "br" ? "Início" : "Home"}
+          </Link>
+          <Link href="/buscar" className={`flex flex-col items-center ${pathname === "/buscar" ? "text-blue-400" : "text-gray-400"}`}>
+            {language === "br" ? "Buscar" : "Search"}
+          </Link>
+          <Link href="/agendamentos" className={`flex flex-col items-center ${pathname === "/agendamentos" ? "text-blue-400" : "text-gray-400"}`}>
+            {language === "br" ? "Agendar" : "Book"}
+          </Link>
+        </nav>
+      )}
     </header>
   )
 }
