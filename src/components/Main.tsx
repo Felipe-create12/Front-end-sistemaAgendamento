@@ -126,7 +126,7 @@ export default function Main() {
         ) : loading ? (
           <p className="text-gray-300 mt-6">Carregando empresas próximas...</p>
         ) : (
-          <Link href="/empresa">
+          <Link href="/empresa/id">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {barbershops.map((shop: any) => (
                 <div

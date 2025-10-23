@@ -38,7 +38,7 @@ export default function Buscar() {
     try {
       let url = ""
       if (type === "nome") {
-        url = `https://localhost:7273/api/Empresa/filtrar/nome?nome=${encodeURIComponent(search)}`
+        url = `https://localhost:7273/api/Empresa/filtrar/${encodeURIComponent(search)}`
       } else if (type === "cidade") {
         url = `https://localhost:7273/api/Empresa/filtrar/cidade?cidade=${encodeURIComponent(search)}`
       } else if (type === "proximas") {
