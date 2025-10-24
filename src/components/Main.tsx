@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation';
 
+
 export default function Main() {
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState("")
@@ -170,5 +171,6 @@ export default function Main() {
         )}
       </div>
     </main>
+
   )
 }

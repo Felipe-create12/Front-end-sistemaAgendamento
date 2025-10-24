@@ -14,22 +14,35 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
 
+    if (!user || !senha) {
+      setError("Preencha usuário e senha")
+      return
+    }
+
     try {
       const response = await fetch("https://localhost:7273/api/Seguranca/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user, senha }),
       })
 
       if (!response.ok) {
-        throw new Error("Usuário ou senha inválidos.")
+        const errorData = await response.json()
+        throw new Error(errorData?.title || "Usuário ou senha inválidos.")
       }
 
       const data = await response.json()
+
+      // Verifica se o userId retornou corretamente
+      if (!data.clienteId || isNaN(Number(data.clienteId)) || Number(data.clienteId) <= 0) {
+        throw new Error("ID do usuário inválido retornado pelo servidor.")
+      }
+
+      // Salva token e clienteId corretamente
       localStorage.setItem("token", data.access_token)
-      router.push("/")
+      localStorage.setItem("clienteId", String(data.clienteId))
+
+      router.replace("/") // redireciona sem deixar voltar para login
     } catch (err: any) {
       setError(err.message)
     }
@@ -73,7 +86,9 @@ export default function LoginPage() {
             Entrar
           </button>
 
-          <Link  href="/register" className="flex">Não possui uma conta? <p className="text-blue-700 ml-1.5">Cadastre-se</p></Link>
+          <Link href="/register" className="flex justify-center mt-2">
+            Não possui uma conta? <span className="text-blue-700 ml-1.5">Cadastre-se</span>
+          </Link>
         </form>
       </div>
     </div>

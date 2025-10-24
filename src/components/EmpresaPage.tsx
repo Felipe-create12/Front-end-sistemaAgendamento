@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import ModalAgendamento from "./ModelAgendamento"
 
 type Servico = {
   id?: number
@@ -17,6 +18,7 @@ type Profissional = {
 
 type EmpresaProps = {
   empresa: {
+    id: number
     image: string
     nome?: string
     endereco?: string
@@ -32,6 +34,7 @@ type EmpresaProps = {
 export default function EmpresaPage({ empresa }: EmpresaProps) {
   const [abaAtiva, setAbaAtiva] = useState<"servicos" | "profissionais">("servicos")
   const servicosRef = useRef<HTMLDivElement>(null)
+   const [servicoSelecionado, setServicoSelecionado] = useState<Servico | null>(null)
 
   const handleAgendarNow = () => {
     setAbaAtiva("servicos")
@@ -46,7 +49,7 @@ export default function EmpresaPage({ empresa }: EmpresaProps) {
     }
 
     // Aqui você pode abrir modal de agendamento ou redirecionar para a página de checkout
-    console.log("Agendando serviço:", s)
+    setServicoSelecionado(s)
   }
 
   if (!empresa) {
@@ -192,6 +195,15 @@ export default function EmpresaPage({ empresa }: EmpresaProps) {
           </div>
         </aside>
       </div>
+
+      {servicoSelecionado && (
+        <ModalAgendamento
+          servico={servicoSelecionado}
+          profissionais={empresa.profissionais || []}
+          empresaId={empresa.id!}
+          onClose={() => setServicoSelecionado(null)}
+        />
+      )}
     </main>
   )
 }
