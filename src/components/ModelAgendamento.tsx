@@ -19,7 +19,7 @@ type Profissional = {
 type ModalAgendamentoProps = {
   servico: Servico
   profissionais: Profissional[]
-  empresaId: number // ✅ adicionamos a empresa aqui
+  empresaId: number
   onClose: () => void
 }
 
@@ -64,18 +64,15 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
     setLoading(true)
     try {
       const body = {
-            agendamentoDto: {
-                idServico: Number(servico.id),
-                idProfissional: Number(profissional.id),
-                idCliente: Number(idCliente),
-                dataHora: `${dataSelecionada}T${horarioSelecionado}:00`,
-                status: "Pendente",
-                empresaId: Number(empresaId), // se a API exigir
-            }
+        agendamentoDto: {
+          idServico: Number(servico.id),
+          idProfissional: Number(profissional.id),
+          idCliente: idCliente,
+          dataHora: `${dataSelecionada}T${horarioSelecionado}:00`,
+          status: "Pendente",
+          empresaId: Number(empresaId),
         }
-
-
-      console.log("📤 Enviando agendamento:", body)
+      }
 
       const res = await fetch("https://localhost:7273/api/Agendamento", {
         method: "POST",
@@ -113,6 +110,7 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
           ✕
         </button>
 
+        {/* Etapa 1: Profissional */}
         {etapa === "profissional" && (
           <>
             <h2 className="text-2xl font-semibold mb-4 text-center">
@@ -151,6 +149,7 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
           </>
         )}
 
+        {/* Etapa 2: Horário */}
         {etapa === "horario" && (
           <>
             <h2 className="text-2xl font-semibold mb-4 text-center">Escolha a data e o horário</h2>
@@ -201,6 +200,7 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
           </>
         )}
 
+        {/* Etapa 3: Confirmar */}
         {etapa === "confirmar" && (
           <>
             <h2 className="text-2xl font-semibold mb-6 text-center">Confirmar agendamento</h2>

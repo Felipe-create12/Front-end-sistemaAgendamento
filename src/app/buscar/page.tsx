@@ -4,15 +4,19 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation"
+import { useEmpresasProximas } from "@/hooks/useEmpresasProximas"
 
 export default function Buscar() {
-  const router = useRouter();
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [currentDate, setCurrentDate] = useState("")
   const [filterType, setFilterType] = useState<"nome" | "cidade" | "proximas" | "">("")
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+
+  // Importa hook reutilizável
+  const { buscarEmpresasProximas, loading: loadingProximas } = useEmpresasProximas()
 
   useEffect(() => {
     const date = new Date()
@@ -37,44 +41,26 @@ export default function Buscar() {
 
     try {
       let url = ""
+
       if (type === "nome") {
         url = `https://localhost:7273/api/Empresa/filtrar/${encodeURIComponent(search)}`
       } else if (type === "cidade") {
         url = `https://localhost:7273/api/Empresa/filtrar/cidade?cidade=${encodeURIComponent(search)}`
       } else if (type === "proximas") {
-        if (!("geolocation" in navigator)) {
-          alert("Geolocalização não suportada pelo seu navegador.")
-          return
-        }
-
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords
-            const response = await fetch(
-              `https://localhost:7273/api/Empresa/proximas?latitude=${latitude}&longitude=${longitude}&raioKm=5`,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
-            )
-            const data = await response.json()
-            setResults(data)
-            setLoading(false)
-          },
-          () => alert("Permita o acesso à sua localização para continuar.")
-        )
+        // ✅ Usa o hook
+        const empresas = await buscarEmpresasProximas()
+        setResults(empresas)
+        setLoading(false)
         return
       }
 
-      // Busca por nome ou cidade
       const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
+
       if (!response.ok) throw new Error("Erro ao buscar empresas")
 
       const data = await response.json()
@@ -86,10 +72,12 @@ export default function Buscar() {
     }
   }
 
+  const isLoading = loading || loadingProximas
+
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-white px-6 py-10 flex flex-col items-center">
       <div className="w-full max-w-5xl">
-        <h1 className="text-xl sm:text-2xl mb-1">Seja bem vindo(a)</h1>
+        <h1 className="text-xl sm:text-2xl mb-1">Seja bem-vindo(a)</h1>
         <p className="text-gray-400 mb-6">{currentDate}</p>
 
         {/* Campo de busca */}
@@ -105,9 +93,7 @@ export default function Buscar() {
         </div>
 
         {search.length > 0 && search.length < 4 && (
-          <p className="text-red-500 text-sm mb-4">
-            Digite pelo menos 4 caracteres
-          </p>
+          <p className="text-red-500 text-sm mb-4">Digite pelo menos 4 caracteres</p>
         )}
 
         {/* Botões de filtro */}
@@ -141,48 +127,41 @@ export default function Buscar() {
         </div>
 
         {/* Resultados */}
-        {loading ? (
+        {isLoading ? (
           <p className="text-gray-400 text-center">Carregando...</p>
         ) : results.length > 0 ? (
           <Link href="/empresa/id">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {results.map((empresa: any) => (
-              <div
-                key={empresa.id}
-                onClick={() => router.push(`/empresa/${empresa.id}`)}
-                className="bg-[#1C1C1C] rounded-md px-4 py-3 flex items-center justify-between shadow-md transition hover:shadow-lg"
-              >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {results.map((empresa: any) => (
+                <div
+                  key={empresa.id}
+                  onClick={() => router.push(`/empresa/${empresa.id}`)}
+                  className="bg-[#1C1C1C] rounded-md px-4 py-3 flex items-center justify-between shadow-md transition hover:shadow-lg cursor-pointer"
+                >
                   <div className="flex items-center gap-4 overflow-hidden">
                     <img
-                        src={empresa.image}
-                        alt={empresa.nome}
-                        onError={(e) => (e.currentTarget.src = "/images/empresas/default.jpg")}
-                        className="w-12 h-12 rounded-full object-cover border border-gray-700"
-                      />
+                      src={empresa.image}
+                      alt={empresa.nome}
+                      onError={(e) => (e.currentTarget.src = "/images/empresas/default.jpg")}
+                      className="w-12 h-12 rounded-full object-cover border border-gray-700"
+                    />
                     <div className="flex flex-col overflow-hidden">
                       <h3 className="text-white font-bold text-sm truncate">{empresa.nome}</h3>
                       <p className="text-gray-400 text-xs truncate">{empresa.endereco}</p>
                       <p className="text-gray-500 text-xs mt-1">
                         📍{" "}
-                        {typeof empresa.distancia === "number" ? (
-                          empresa.distancia < 1
+                        {typeof empresa.distancia === "number"
+                          ? empresa.distancia < 1
                             ? `${(empresa.distancia * 1000).toFixed(0)}m`
                             : `${empresa.distancia.toFixed(2)}km`
-                        ) : (
-                          "Distância não disponível"
-                        )}{" "}
-                        {" "}
-                        &nbsp; 
+                          : "Distância não disponível"}
                       </p>
                     </div>
-                  </div> 
-
-                  <button className="text-green-400 text-2xl ml-2">
-                      &#8250;
-                  </button> 
-              </div>
-            ))}
-          </div>
+                  </div>
+                  <button className="text-green-400 text-2xl ml-2">&#8250;</button>
+                </div>
+              ))}
+            </div>
           </Link>
         ) : (
           <div className="flex flex-col items-center mt-10 text-center">

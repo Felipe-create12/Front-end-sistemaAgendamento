@@ -15,6 +15,16 @@ type Agendamento = {
 
 export default function MeusAgendamentos({ idCliente }: { idCliente: number }) {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([])
+  const [isLogged, setIsLogged] = useState<boolean>(false)
+
+  useEffect(() => {
+    // Exemplo de verificação de login (você pode trocar para o seu token real)
+    if (idCliente && idCliente > 0) {
+      setIsLogged(true)
+    } else {
+      setIsLogged(false)
+    }
+  }, [idCliente])
 
   useEffect(() => {
     const fetchAgendamentos = async () => {
@@ -27,11 +37,48 @@ export default function MeusAgendamentos({ idCliente }: { idCliente: number }) {
         console.error(error)
       }
     }
-    if (idCliente) fetchAgendamentos()
-  }, [idCliente])
+    if (isLogged && idCliente) fetchAgendamentos()
+  }, [isLogged, idCliente])
 
+  // Caso o usuário não esteja logado
+  if (!isLogged) {
+    return (
+      <main className="bg-[#0D0D0D] text-white min-h-screen flex flex-col items-center justify-center px-6 py-10 relative overflow-hidden">
+        {/* Fundo com ondas sutis */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
+          <svg
+            className="relative block w-[calc(100%+1.3px)] h-[120px]"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M321.39,56.44C183.81,80.89,86.24,103.73,0,120V0H1200V27.35c-85.73,26.15-175.8,52.79-321.39,77.44C677.4,138.3,472.52,31.71,321.39,56.44Z"
+              fill="#111111"
+            ></path>
+          </svg>
+        </div>
+
+        {/* Conteúdo */}
+        <section className="text-center z-10">
+          <h1 className="text-4xl md:text-5xl font-semibold mb-4">Faça login para continuar</h1>
+          <p className="text-gray-400 mb-10 text-sm md:text-base">
+            Agende e pague online, resgate itens do programa de fidelidade e muito mais.
+          </p>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-10 rounded-full transition-all shadow-lg"
+          >
+            Acessar
+          </button>
+        </section>
+      </main>
+    )
+  }
+
+  // Caso o usuário esteja logado
   return (
-    <main className="bg-[#0D0D0D] text-white min-h-screen flex flex-col items-center justify-start px-6 py-10">
+    <main className="bg-[#0D0D0D] text-white min-h-screen flex flex-col items-center justify-center px-6 py-10">
       {/* Cabeçalho */}
       <section className="text-center mb-10">
         <h1 className="text-3xl font-bold mb-3">Meus Agendamentos</h1>

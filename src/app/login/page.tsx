@@ -28,21 +28,21 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData?.title || "Usuário ou senha inválidos.")
+        throw new Error(errorData?.message || "Usuário ou senha inválidos.")
       }
 
       const data = await response.json()
 
-      // Verifica se o userId retornou corretamente
+      // ✅ Validar clienteId retornado
       if (!data.clienteId || isNaN(Number(data.clienteId)) || Number(data.clienteId) <= 0) {
         throw new Error("ID do usuário inválido retornado pelo servidor.")
       }
 
-      // Salva token e clienteId corretamente
+      // Salva token e clienteId no localStorage
       localStorage.setItem("token", data.access_token)
       localStorage.setItem("clienteId", String(data.clienteId))
 
-      router.replace("/") // redireciona sem deixar voltar para login
+      router.replace("/") // redireciona sem voltar para login
     } catch (err: any) {
       setError(err.message)
     }

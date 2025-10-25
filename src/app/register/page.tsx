@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const [senha, setSenha] = useState("")
   const [Consenha, setConSenha] = useState("")
   const [Nome, setNome] = useState("")
-  const [CliId, setCliId] = useState("")
+  const [ClienteId, setClienteId] = useState("")
   const [error, setError] = useState("")
 
   async function handleLogin(e: React.FormEvent) {
@@ -23,7 +23,7 @@ export default function RegisterPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user, senha }),
+        body: JSON.stringify({ user, senha,ClienteId }),
       })
 
       if (!response.ok) {
@@ -95,8 +95,8 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium mb-1">Id</label>
             <input
               type="text"
-              value={CliId}
-              onChange={(e) => setCliId(e.target.value)}
+              value={ClienteId}
+              onChange={(e) => setClienteId(e.target.value)}
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite seu Nome"
               required
