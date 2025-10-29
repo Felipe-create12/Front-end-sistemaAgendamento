@@ -41,6 +41,7 @@ export default function LoginPage() {
       // Salva token e clienteId no localStorage
       localStorage.setItem("token", data.access_token)
       localStorage.setItem("clienteId", String(data.clienteId))
+      console.log("Token:", localStorage.getItem("token"))
 
       router.replace("/") // redireciona sem voltar para login
     } catch (err: any) {
