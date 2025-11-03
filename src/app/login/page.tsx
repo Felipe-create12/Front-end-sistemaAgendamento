@@ -38,9 +38,10 @@ export default function LoginPage() {
         throw new Error("ID do usuário inválido retornado pelo servidor.")
       }
 
-      // Salva token e clienteId no localStorage
+      // Salva token, clienteId e user no localStorage
       localStorage.setItem("token", data.access_token)
       localStorage.setItem("clienteId", String(data.clienteId))
+      localStorage.setItem("user", data.user)
       console.log("Token:", localStorage.getItem("token"))
 
       router.replace("/") // redireciona sem voltar para login

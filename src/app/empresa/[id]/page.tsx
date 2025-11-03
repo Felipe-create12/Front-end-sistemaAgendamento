@@ -52,7 +52,7 @@ export default function EmpresaDetalhe() {
         // Adiciona a imagem da empresa
         const empresaComImagem: Empresa = {
           ...data,
-          image: `/sistema-agendamento/public/images/empresa${data.id}.jpg`,
+          image: `/images/empresa/${data.id}.jpg`,
         }
 
         setEmpresa(empresaComImagem)

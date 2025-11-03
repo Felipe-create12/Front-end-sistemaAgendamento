@@ -113,6 +113,7 @@ export default function Header() {
               <button
                 onClick={() => {
                   localStorage.removeItem("token")
+                  localStorage.removeItem("user") // Limpa nome do usuário
                   window.location.href = "/"
                 }}
                 className="w-full flex items-center justify-center gap-2 bg-[#E6005A] hover:bg-[#ff006e] text-white py-2 text-sm font-medium transition"

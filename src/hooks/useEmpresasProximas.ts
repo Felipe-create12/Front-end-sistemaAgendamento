@@ -37,7 +37,7 @@ export function useEmpresasProximas() {
 
             const empresasComImagens = data.map((empresa: any) => ({
               ...empresa,
-              image: `/sistema-agendamento/public/images/empresa${empresa.id}.jpg`,
+              image: `/images/empresa/${empresa.id}.jpg`,
             }))
 
             resolve(empresasComImagens)

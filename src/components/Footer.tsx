@@ -29,7 +29,6 @@ export default function Footer() {
             <li><Link href="/" className="hover:text-white">Início</Link></li>
             <li><Link href="/buscar" className="hover:text-white">Encontrar estabelecimentos</Link></li>
             <li><Link href="/meus-agendamentos" className="hover:text-white">Meus agendamentos</Link></li>
-            <li><Link href="/favoritos" className="hover:text-white">Favoritos</Link></li>
           </ul>
         </div>
 

@@ -41,20 +41,9 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
       alert("Selecione todas as informações antes de confirmar.")
       return
     }
-    // Pegar token do cookie
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length === 2) return parts.pop()?.split(";").shift()
-    }
-
-    const token = getCookie("token")
+    // Pegar token (usar localStorage para ficar consistente com o login)
+    const token = localStorage.getItem("token")
     const idClienteStr = localStorage.getItem("clienteId")
-
-    if (!token) {
-      alert("Token não encontrado. Faça login novamente.")
-      return
-    }
 
     if (!token || !idClienteStr) {
       alert("Você precisa estar logado para agendar.")
@@ -85,6 +74,9 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
         }
       }
 
+      // DEBUG: mostrar token e body antes de enviar
+      console.log("Token enviado:", token)
+      console.log("Body agendamento:", body)
 
       const res = await fetch("https://localhost:7273/api/Agendamento", {
         method: "POST",

@@ -13,32 +13,50 @@ type Agendamento = {
   empresaNome?: string
 }
 
-export default function MeusAgendamentos({ idCliente }: { idCliente: number }) {
+export default function MeusAgendamentos() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([])
   const [isLogged, setIsLogged] = useState<boolean>(false)
+  const [idCliente, setIdCliente] = useState<number | null>(null)
+  const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    // Exemplo de verificação de login (você pode trocar para o seu token real)
-    if (idCliente && idCliente > 0) {
+    // Buscar idCliente e token do localStorage (padronizado)
+    const idClienteStr = localStorage.getItem("clienteId")
+    const token = localStorage.getItem("token")
+    if (idClienteStr && !isNaN(Number(idClienteStr)) && Number(idClienteStr) > 0 && token) {
+      setIdCliente(Number(idClienteStr))
+      setToken(token)
       setIsLogged(true)
     } else {
+      setIdCliente(null)
+      setToken(null)
       setIsLogged(false)
     }
-  }, [idCliente])
+  }, [])
 
   useEffect(() => {
     const fetchAgendamentos = async () => {
       try {
-        const res = await fetch(`https://localhost:7273/api/Agendamento/cliente/${idCliente}`)
+        if (!idCliente || !token) return
+        const res = await fetch(`https://localhost:7273/api/Agendamento/cliente`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (res.status === 404) {
+          setAgendamentos([]) // Nenhum agendamento encontrado
+          return
+        }
         if (!res.ok) throw new Error("Erro ao buscar agendamentos")
         const data = await res.json()
         setAgendamentos(data)
       } catch (error) {
-        console.error(error)
+        setAgendamentos([]) // Trate qualquer erro como lista vazia
       }
     }
-    if (isLogged && idCliente) fetchAgendamentos()
-  }, [isLogged, idCliente])
+    if (isLogged && idCliente && token) fetchAgendamentos()
+  }, [isLogged, idCliente, token])
 
   // Caso o usuário não esteja logado
   if (!isLogged) {
@@ -122,7 +140,7 @@ export default function MeusAgendamentos({ idCliente }: { idCliente: number }) {
       <div className="mt-10">
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-xl transition-all shadow-lg"
-          onClick={() => (window.location.href = "/empresas")}
+          onClick={() => (window.location.href = "/buscar")}
         >
           Fazer novo agendamento
         </button>
