@@ -76,6 +76,7 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
 
       // DEBUG: mostrar token e body antes de enviar
       console.log("Token enviado:", token)
+      console.log("Authorization header:", `Bearer ${token}`)
       console.log("Body agendamento:", body)
 
       const res = await fetch("https://localhost:7273/api/Agendamento", {

@@ -141,7 +141,7 @@ export default function Header() {
           {!isLogged && (
             <Link
               href="/login"
-              className="hidden sm:block bg-gray-800 px-3 py-1.5 rounded-full hover:bg-gray-700 text-sm transition"
+              className="block bg-gray-800 px-3 py-1.5 rounded-full hover:bg-gray-700 text-sm transition"
             >
               {language === "br" ? "Entrar" : "Login"}
             </Link>
