@@ -64,15 +64,14 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
     setLoading(true)
     try {
       const body = {
-        agendamentoDto: {
-          idServico: Number(servico.id),
-          idProfissional: Number(profissional.id),
-          idCliente: idCliente,
-          dataHora: `${dataSelecionada}T${horarioSelecionado}:00`,
-          status: "Pendente",
-          empresaId: Number(empresaId),
-        }
+        idServico: Number(servico.id),
+        idProfissional: Number(profissional.id),
+        idCliente: idCliente,
+        dataHora: `${dataSelecionada}T${horarioSelecionado}:00`,
+        status: "Pendente",
+        empresaId: Number(empresaId),
       }
+
 
       // DEBUG: mostrar token e body antes de enviar
       console.log("Token enviado:", token)
