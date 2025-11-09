@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { Sun, Moon, ChevronDown, LogOut, Bell } from "lucide-react"
 import { useTheme } from "next-themes"
+import { User } from "lucide-react"
+
 
 export default function Header() {
   const { theme, setTheme } = useTheme()
@@ -90,6 +92,19 @@ export default function Header() {
             />
           </button>
 
+          {/* BOTÃO DE TEMA */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+            title={language === "br" ? "Alterar tema" : "Toggle theme"}
+          >
+            {theme === "dark" ? (
+              <Sun className="w-5 h-5 text-yellow-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-gray-700" />
+            )}
+          </button>
+          
           {/* PERFIL */}
           {isLogged && (
             <button
@@ -109,11 +124,18 @@ export default function Header() {
 
           {/* DROPDOWN PERFIL */}
           {dropdownOpen && (
-            <div className="absolute right-0 top-12 w-36 bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-800 overflow-hidden animate-fadeIn">
+            <div className="absolute right-0 top-12 w-40 bg-[#1a1a1a] rounded-xl shadow-lg border border-gray-800 overflow-hidden animate-fadeIn">
+              <Link
+                href="/perfil"
+                className="w-full flex items-center justify-center gap-2 text-white py-2 text-sm font-medium hover:bg-neutral-800 transition"
+              >
+                <User size={16} />
+                {language === "br" ? "Perfil" : "Profile"}
+              </Link>
               <button
                 onClick={() => {
                   localStorage.removeItem("token")
-                  localStorage.removeItem("user") // Limpa nome do usuário
+                  localStorage.removeItem("user")
                   window.location.href = "/"
                 }}
                 className="w-full flex items-center justify-center gap-2 bg-[#E6005A] hover:bg-[#ff006e] text-white py-2 text-sm font-medium transition"
@@ -124,18 +146,8 @@ export default function Header() {
             </div>
           )}
 
-          {/* BOTÃO DE TEMA */}
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-            title={language === "br" ? "Alterar tema" : "Toggle theme"}
-          >
-            {theme === "dark" ? (
-              <Sun className="w-5 h-5 text-yellow-400" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-700" />
-            )}
-          </button>
+
+          
 
           {/* LOGIN (caso deslogado) */}
           {!isLogged && (

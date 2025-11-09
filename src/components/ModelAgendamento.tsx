@@ -20,6 +20,7 @@ type ModalAgendamentoProps = {
   servico: Servico
   profissionais: Profissional[]
   empresaId: number
+  categoria?: string
   onClose: () => void
 }
 
@@ -70,6 +71,7 @@ export default function ModalAgendamento({ servico, profissionais, empresaId, on
         dataHora: `${dataSelecionada}T${horarioSelecionado}:00`,
         status: "Pendente",
         empresaId: Number(empresaId),
+        categoria: "Barbearia"
       }
 
 

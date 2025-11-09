@@ -25,6 +25,7 @@ type Empresa = {
   cidade?: string
   estado?: string
   cep?: string
+  categoria?: string 
   servicos?: Servico[]
   profissionais?: Profissional[]
   image?: string

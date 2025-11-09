@@ -43,7 +43,7 @@ export default function Main() {
   return (
     <main className="min-h-screen flex flex-col bg-[#0D0D0D] text-white px-4 py-10 sm:px-6 md:px-8 lg:px-10">
       <div className="w-full max-w-5xl mx-auto">
-        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
+        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl ">
           {userName ? `Seja bem-vindo, ${userName}` : "Seja bem-vindo(a)"}
         </h1>
         <p className="text-gray-400 mb-6">{currentDate}</p>

@@ -6,6 +6,7 @@ type Agendamento = {
   idServico: number
   idProfissional: number
   idCliente: number
+  empresaId: number
   dataHora: string
   status: string
   servicoNome?: string
@@ -22,9 +23,18 @@ export default function MeusAgendamentos() {
   // ✅ Estados novos
   const [showModal, setShowModal] = useState(false)
   const [showDetalhes, setShowDetalhes] = useState(false)
+  const [showEditar, setShowEditar] = useState(false)
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<Agendamento | null>(null)
-
   const [idToDelete, setIdToDelete] = useState<number | null>(null)
+
+  // ✅ Estados para edição
+  const [editServico, setEditServico] = useState("")
+  const [editProfissional, setEditProfissional] = useState("")
+  const [editDataHora, setEditDataHora] = useState("")
+
+  // ✅ Listas de serviço e profissional
+  const [servicos, setServicos] = useState<{ id: number; nome: string }[]>([])
+  const [profissionais, setProfissionais] = useState<{ id: number; nome: string }[]>([])
 
   useEffect(() => {
     const idClienteStr = localStorage.getItem("clienteId")
@@ -40,6 +50,7 @@ export default function MeusAgendamentos() {
     }
   }, [])
 
+  // ✅ Buscar agendamentos do cliente
   useEffect(() => {
     const fetchAgendamentos = async () => {
       try {
@@ -57,12 +68,31 @@ export default function MeusAgendamentos() {
         if (!res.ok) throw new Error("Erro ao buscar agendamentos")
         const data = await res.json()
         setAgendamentos(data)
-      } catch (error) {
+      } catch {
         setAgendamentos([])
       }
     }
     if (isLogged && idCliente && token) fetchAgendamentos()
   }, [isLogged, idCliente, token])
+
+  // ✅ Buscar serviços e profissionais
+  useEffect(() => {
+    const fetchServicosEProfissionais = async () => {
+      try {
+        const [resServicos, resProfissionais] = await Promise.all([
+          fetch("https://localhost:7273/api/Servico"),
+          fetch("https://localhost:7273/api/Profissional"),
+        ])
+        const dataServicos = await resServicos.json()
+        const dataProfissionais = await resProfissionais.json()
+        setServicos(dataServicos)
+        setProfissionais(dataProfissionais)
+      } catch (err) {
+        console.error("Erro ao carregar listas:", err)
+      }
+    }
+    fetchServicosEProfissionais()
+  }, [])
 
   // ✅ Cancelar agendamento
   const cancelarAgendamento = async () => {
@@ -74,6 +104,53 @@ export default function MeusAgendamentos() {
     setAgendamentos((prev) => prev.filter(a => a.id !== idToDelete))
     setShowModal(false)
   }
+
+  // ✅ Alterar agendamento
+  // ✅ Alterar agendamento
+const alterarAgendamento = async () => {
+  if (!agendamentoSelecionado || !token) return
+
+  // Garante formato ISO válido
+  const dataHoraFormatada = new Date(editDataHora).toISOString()
+
+  const body = {
+    id: agendamentoSelecionado.id,
+    idServico: Number(editServico),
+    idProfissional: Number(editProfissional),
+    idCliente: agendamentoSelecionado.idCliente,
+    empresaId: agendamentoSelecionado.empresaId,
+    dataHora: dataHoraFormatada,
+    status: agendamentoSelecionado.status || "Pendente",
+    servicoNome: agendamentoSelecionado.servicoNome || "",
+    profissionalNome: agendamentoSelecionado.profissionalNome || "",
+    empresaNome: agendamentoSelecionado.empresaNome || "",
+  }
+
+  console.log("Enviando PUT /api/Agendamento com body:", body)
+
+  const res = await fetch(`https://localhost:7273/api/Agendamento`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  })
+
+  const msg = await res.text()
+  console.log("Resposta do servidor:", msg)
+
+  if (res.ok) {
+    setAgendamentos((prev) =>
+      prev.map((a) => (a.id === agendamentoSelecionado.id ? { ...a, ...body } : a))
+    )
+    setShowEditar(false)
+    alert("✅ Agendamento alterado com sucesso!")
+  } else {
+    alert("❌ Erro ao alterar agendamento: " + msg)
+  }
+}
+
 
   if (!isLogged) {
     return (
@@ -131,19 +208,30 @@ export default function MeusAgendamentos() {
                   Data: {new Date(ag.dataHora).toLocaleString("pt-BR")}
                 </p>
 
-                {/* ✅ Botão detalhes */}
                 <button
                   onClick={() => {
                     setAgendamentoSelecionado(ag)
                     setShowDetalhes(true)
                   }}
-                  className="text-blue-400 underline text-sm mt-2"
+                  className="text-blue-400 underline text-sm mt-2 mr-4"
                 >
                   Ver detalhes
                 </button>
+
+                <button
+                  onClick={() => {
+                    setAgendamentoSelecionado(ag)
+                    setEditServico(String(ag.idServico))
+                    setEditProfissional(String(ag.idProfissional))
+                    setEditDataHora(ag.dataHora.slice(0, 16))
+                    setShowEditar(true)
+                  }}
+                  className="text-yellow-400 underline text-sm mt-2"
+                >
+                  Alterar
+                </button>
               </div>
 
-              {/* ✅ Botão cancelar */}
               <button
                 className="mt-4 md:mt-0 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm"
                 onClick={() => {
@@ -193,7 +281,6 @@ export default function MeusAgendamentos() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4">
           <div className="bg-[#121212] p-6 rounded-xl w-full max-w-md border border-gray-700">
             <h2 className="text-xl font-semibold mb-4">Detalhes da Comanda</h2>
-
             <p><strong>Serviço:</strong> {agendamentoSelecionado.servicoNome}</p>
             <p><strong>Profissional:</strong> {agendamentoSelecionado.profissionalNome}</p>
             <p><strong>Empresa:</strong> {agendamentoSelecionado.empresaNome}</p>
@@ -206,6 +293,66 @@ export default function MeusAgendamentos() {
             >
               Fechar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Modal editar */}
+      {showEditar && agendamentoSelecionado && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <div className="bg-[#121212] p-6 rounded-xl w-full max-w-md border border-gray-700">
+            <h2 className="text-xl font-semibold mb-4">Alterar Agendamento</h2>
+
+            <label className="block text-sm mb-2">Serviço</label>
+            <select
+              value={editServico}
+              onChange={(e) => setEditServico(e.target.value)}
+              className="w-full mb-4 p-2 bg-[#1A1A1A] border border-gray-600 rounded-lg"
+            >
+              <option value="">Selecione um serviço</option>
+              {servicos.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.nome}
+                </option>
+              ))}
+            </select>
+
+            <label className="block text-sm mb-2">Profissional</label>
+            <select
+              value={editProfissional}
+              onChange={(e) => setEditProfissional(e.target.value)}
+              className="w-full mb-4 p-2 bg-[#1A1A1A] border border-gray-600 rounded-lg"
+            >
+              <option value="">Selecione um profissional</option>
+              {profissionais.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nome}
+                </option>
+              ))}
+            </select>
+
+            <label className="block text-sm mb-2">Data e Hora</label>
+            <input
+              type="datetime-local"
+              value={editDataHora}
+              onChange={(e) => setEditDataHora(e.target.value)}
+              className="w-full mb-6 p-2 bg-[#1A1A1A] border border-gray-600 rounded-lg"
+            />
+
+            <div className="flex justify-between">
+              <button
+                className="bg-gray-600 px-4 py-2 rounded-lg"
+                onClick={() => setShowEditar(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="bg-blue-600 px-4 py-2 rounded-lg"
+                onClick={alterarAgendamento}
+              >
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
       )}

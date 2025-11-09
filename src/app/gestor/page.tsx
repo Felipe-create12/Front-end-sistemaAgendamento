@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 
 export default function CadastroEmpresa() {
   const [form, setForm] = useState({
@@ -163,6 +164,9 @@ export default function CadastroEmpresa() {
           <button className="w-full bg-blue-600 py-3 rounded mt-4 font-bold">
             Cadastrar Empresa
           </button>
+          <Link href="/empresas" className="block text-center mt-4 text-blue-400 hover:underline">
+                Ver empresas cadastradas
+          </Link>
         </form>
       </div>
     </div>

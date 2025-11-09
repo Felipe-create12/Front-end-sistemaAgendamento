@@ -26,6 +26,7 @@ type EmpresaProps = {
     cidade?: string
     estado?: string
     cep?: string
+    categoria?: string
     servicos?: Servico[]
     profissionais?: Profissional[]
   } | null
@@ -201,6 +202,7 @@ export default function EmpresaPage({ empresa }: EmpresaProps) {
           servico={servicoSelecionado}
           profissionais={empresa.profissionais || []}
           empresaId={empresa.id!}
+          categoria={empresa.categoria} 
           onClose={() => setServicoSelecionado(null)}
         />
       )}
