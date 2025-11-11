@@ -77,7 +77,7 @@ export default function MeusAgendamentos() {
 
   // ✅ Buscar serviços e profissionais
   useEffect(() => {
-    const fetchServicosEProfissionais = async () => {
+  const fetchServicosEProfissionais = async () => {
       try {
         const [resServicos, resProfissionais] = await Promise.all([
           fetch("https://localhost:7273/api/Servico"),
@@ -85,14 +85,21 @@ export default function MeusAgendamentos() {
         ])
         const dataServicos = await resServicos.json()
         const dataProfissionais = await resProfissionais.json()
-        setServicos(dataServicos)
-        setProfissionais(dataProfissionais)
+
+        // 🔧 Filtra apenas da empresa do agendamento selecionado
+        if (agendamentoSelecionado) {
+          setServicos(dataServicos.filter((s: any) => s.empresaId === agendamentoSelecionado.empresaId))
+          setProfissionais(dataProfissionais.filter((p: any) => p.empresaId === agendamentoSelecionado.empresaId))
+        } else {
+          setServicos(dataServicos)
+          setProfissionais(dataProfissionais)
+        }
       } catch (err) {
         console.error("Erro ao carregar listas:", err)
       }
     }
     fetchServicosEProfissionais()
-  }, [])
+  }, [agendamentoSelecionado])
 
   // ✅ Cancelar agendamento
   const cancelarAgendamento = async () => {
