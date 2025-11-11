@@ -13,7 +13,6 @@ export default function RegisterPage() {
   const [Nome, setNome] = useState("")
   const [Email, setEmail] = useState("")
   const [Telefone, setTelefone] = useState("")
-  const [ClienteId, setClienteId] = useState("")
   const [error, setError] = useState("")
 
   async function handleRegister(e: React.FormEvent) {
@@ -27,8 +26,7 @@ export default function RegisterPage() {
         confirmarSenha: Consenha,
         nome: Nome,
         email: Email,
-        telefone: Telefone,
-        clienteId: ClienteId || null
+        telefone: Telefone
       }
 
       const response = await fetch("https://localhost:7273/api/User/register", {
@@ -58,6 +56,7 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-semibold mb-6 text-center">Cadastre-se</h1>
         <form onSubmit={handleRegister} className="space-y-4">
 
+          {/* Usuário */}
           <div>
             <label className="block text-sm font-medium mb-1">Usuário</label>
             <input
@@ -70,6 +69,7 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Senha */}
           <div>
             <label className="block text-sm font-medium mb-1">Senha</label>
             <input
@@ -82,6 +82,7 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Confirmação de senha */}
           <div>
             <label className="block text-sm font-medium mb-1">Confirme Sua Senha</label>
             <input
@@ -94,6 +95,7 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Nome */}
           <div>
             <label className="block text-sm font-medium mb-1">Nome</label>
             <input
@@ -106,6 +108,7 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
@@ -118,6 +121,7 @@ export default function RegisterPage() {
             />
           </div>
 
+          {/* Telefone */}
           <div>
             <label className="block text-sm font-medium mb-1">Telefone</label>
             <input
@@ -127,17 +131,6 @@ export default function RegisterPage() {
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite seu telefone"
               required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Cliente ID (opcional)</label>
-            <input
-              type="text"
-              value={ClienteId}
-              onChange={(e) => setClienteId(e.target.value)}
-              className="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Se já foi registrado antes, coloque o ID"
             />
           </div>
 
