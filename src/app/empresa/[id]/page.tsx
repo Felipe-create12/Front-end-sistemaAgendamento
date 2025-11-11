@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import EmpresaPage from "@/components/EmpresaPage"
+import LoadingScreen from "@/components/LoadingScreen" 
 
 type Servico = {
   id?: number
@@ -68,13 +69,7 @@ export default function EmpresaDetalhe() {
     if (id) fetchEmpresa()
   }, [id])
 
-  if (loading) {
-    return (
-      <main className="bg-[#0D0D0D] text-white min-h-screen flex items-center justify-center">
-        <p className="text-gray-400">Carregando...</p>
-      </main>
-    )
-  }
+  if (loading) return <LoadingScreen message="Carregando empresa..." />
 
   if (error || !empresa) {
     return (

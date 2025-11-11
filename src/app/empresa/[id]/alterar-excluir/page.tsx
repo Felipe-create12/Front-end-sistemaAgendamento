@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import LoadingScreen from "@/components/LoadingScreen"
 
 export default function AlterarExcluirEmpresa() {
   const params = useParams()
@@ -50,19 +51,66 @@ export default function AlterarExcluirEmpresa() {
   const handleChange = (e: any) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleUpdate = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      await fetch(`https://localhost:7273/api/Empresa/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ ...form, servicos, profissionais })
+  try {
+    const token = localStorage.getItem("token")
+    const res = await fetch(`https://localhost:7273/api/Empresa`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ ...form, servicos, profissionais })
+    })
+
+    if (!res.ok) throw new Error("Erro ao atualizar empresa")
+
+    if (res.status === 200) {
+      // 🔹 Backend retornou a empresa atualizada
+      const data = await res.json()
+      setForm({
+        id: data.id,
+        nome: data.nome,
+        endereco: data.endereco,
+        cidade: data.cidade,
+        estado: data.estado,
+        cep: data.cep,
+        telefone: data.telefone,
+        categoria: data.categoria,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        distancia: data.distancia
       })
-      alert("✅ Empresa atualizada com sucesso!")
-      router.push("/empresas")
-    } catch {
-      alert("❌ Erro ao atualizar empresa")
+      setServicos(data.servicos || [])
+      setProfissionais(data.profissionais || [])
+    } else if (res.status === 204) {
+      // 🔹 Backend não retornou nada → refaz o GET
+      const token = localStorage.getItem("token")
+      const resGet = await fetch(`https://localhost:7273/api/Empresa`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (resGet.ok) {
+        const data = await resGet.json()
+        setForm({
+          id: data.id,
+          nome: data.nome,
+          endereco: data.endereco,
+          cidade: data.cidade,
+          estado: data.estado,
+          cep: data.cep,
+          telefone: data.telefone,
+          categoria: data.categoria,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          distancia: data.distancia
+        })
+        setServicos(data.servicos || [])
+        setProfissionais(data.profissionais || [])
+      }
     }
+
+    alert("✅ Empresa atualizada com sucesso!")
+    router.push("/empresas")
+  } catch {
+    alert("❌ Erro ao atualizar empresa")
   }
+}
 
   const handleDelete = async () => {
     if (!confirm("Tem certeza que deseja excluir esta empresa?")) return
@@ -79,13 +127,15 @@ export default function AlterarExcluirEmpresa() {
     }
   }
 
-  const addServico = () => setServicos([...servicos, { nome: "", preco: "", duracaoEmMinutos: "" }])
+  const addServico = () =>
+  setServicos([...servicos, { id: 0, nome: "", preco: "", duracaoEmMinutos: "" }])
   const removeServico = (index: number) => setServicos(servicos.filter((_, i) => i !== index))
 
-  const addProfissional = () => setProfissionais([...profissionais, { nome: "", especialidade: "" }])
+  const addProfissional = () =>
+  setProfissionais([...profissionais, { id: 0, nome: "", especialidade: "" }])
   const removeProfissional = (index: number) => setProfissionais(profissionais.filter((_, i) => i !== index))
 
-  if (loading) return <p className="text-white">Carregando...</p>
+  if (loading) return <LoadingScreen message="Carregando Alterar..." />
   if (!form) return <p className="text-white">Empresa não encontrada</p>
 
   return (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import LoadingScreen from "@/components/LoadingScreen"
 
 export default function PerfilPage() {
   const [aba, setAba] = useState<"dados" | "seguranca">("dados")
@@ -80,7 +81,7 @@ export default function PerfilPage() {
     setConfirmarSenha("")
   }
 
-  if (loading) return <p className="text-white text-center mt-10">Carregando...</p>
+  if (loading) return <LoadingScreen message="Carregando Perfil..." />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-6 flex justify-center">

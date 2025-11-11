@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import LoadingScreen from "@/components/LoadingScreen"
 
 type Empresa = {
   id: number
@@ -38,13 +39,7 @@ export default function EmpresasList() {
     fetchEmpresas()
   }, [])
 
-  if (loading) {
-    return (
-      <main className="bg-black text-white min-h-screen flex items-center justify-center">
-        <p className="text-gray-400">Carregando empresas...</p>
-      </main>
-    )
-  }
+  if (loading) return <LoadingScreen message="Carregando empresa..." />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-10">
